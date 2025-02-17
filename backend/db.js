@@ -1,5 +1,6 @@
 import mongoose, { Model } from "mongoose";
 import dotenv from "dotenv";
+import { number } from "zod";
 dotenv.config();
 
 
@@ -13,6 +14,7 @@ const dbConection = async()=>{
    }
 }
 
+dbConection();
 
 const userShema = new mongoose.Schema({
     userName : {
@@ -45,7 +47,24 @@ const userShema = new mongoose.Schema({
 
 const User = new Model('User',userShema);
 
+
+const accountSchema = new mongoose.Schema({
+    userId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "User",
+        required : true
+    },
+    balance : {
+        type : Number,
+        required : true
+    }
+})
+
+const Account = mongoose.model('Account',accountSchema);
+
+
 module.exports={
     User,
-    dbConection
+    dbConection,
+    Account,
 }
