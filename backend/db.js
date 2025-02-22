@@ -1,6 +1,5 @@
-import mongoose, { Model } from "mongoose";
-import dotenv from "dotenv";
-import { number } from "zod";
+const mongoose = require("mongoose");
+const dotenv = require("dotenv")
 dotenv.config();
 
 
@@ -16,8 +15,8 @@ const dbConection = async()=>{
 
 dbConection();
 
-const userShema = new mongoose.Schema({
-    userName : {
+const userSchema = new mongoose.Schema({
+    username : {
         type : String,
         required : true,
         unique : true,
@@ -45,13 +44,13 @@ const userShema = new mongoose.Schema({
     }
 })
 
-const User = new Model('User',userShema);
+const User = mongoose.model('User',userSchema);
 
 
 const accountSchema = new mongoose.Schema({
     userId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : "User",
+        ref : 'User',
         required : true
     },
     balance : {

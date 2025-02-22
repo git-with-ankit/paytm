@@ -2,14 +2,14 @@ const express = require("express");
 const cors = require("cors")
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
-const { User, dbConnection } = require("../db")
+const { User,Account } = require("../db")
 const {authMiddleware} = require("../middleware")
 
 
 const router = express.Router();
 
 const signupSchema = zod.object({
-    username : zod.string().email(),
+    username : zod.string(),
     firstName : zod.string(),
     lastName : zod.string(),
     password : zod.string(),
@@ -21,7 +21,7 @@ router.post("/signup", async (req, res) => {
     const { success } = signupSchema.safeParse(req.body)
     if (!success) {
         return res.status(411).json({
-            message: "Email already taken / Incorrect inputs"
+            message: "Incorrect inputs"
         })
     }
 
@@ -31,7 +31,7 @@ router.post("/signup", async (req, res) => {
 
     if (existingUser) {
         return res.status(411).json({
-            message: "Email already taken/Incorrect inputs"
+            message: "Email already taken"
         })
     }
 
@@ -39,7 +39,7 @@ router.post("/signup", async (req, res) => {
         username: req.body.username,
         password: req.body.password,
         firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        lastName: req.body.lastName
     })
     const userId = user._id;
 
@@ -52,7 +52,7 @@ router.post("/signup", async (req, res) => {
 
     const token = jwt.sign({
         userId
-    }, JWT_SECRET);
+    },process.env.JWT_SECRET );
 
     res.json({
         message: "User created successfully",
@@ -61,21 +61,20 @@ router.post("/signup", async (req, res) => {
 })
 
 const signinSchema = zod.object({
-    username : zod.string().email(),
+    username : zod.string(),
     password : zod.string()
 })
 
 router.post("/signin",async (req,res)=>{
-    const body = req.body;
-    const {success} = signinSchema.safeParse(body);
+    const {success} = signinSchema.safeParse(req.body);
     if(!success){
         return res.status(411).json({
             message : "Incorrect Inputs"
         })
     }
     const user = await User.findOne({
-        username : body.username,
-        password : body.password
+        username : req.body.username,
+        password : req.body.password
     })
     if(user){
         const token = jwt.sign({
